@@ -17,12 +17,14 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # -------------------- USER AUTH --------------------
+hashed_passwords = stauth.Hasher(["12345"]).generate()
+
 credentials = {
     "usernames": {
         "johndoe": {
             "email": "john@example.com",
             "name": "John Doe",
-            "password": stauth.Hasher(["12345"]).generate()
+            "password": hashed_passwords[0]
         }
     }
 }
@@ -129,7 +131,6 @@ elif authentication_status:
         else:
             data['date'] = pd.to_datetime(data['date'])
 
-            # Main Screen Filters
             col1, col2 = st.columns(2)
             with col1:
                 region = st.selectbox("Select Region", ["All"] + sorted(data['region'].unique()))
@@ -146,7 +147,7 @@ elif authentication_status:
             col1.metric("Total Revenue", f"${data['revenue'].sum():,.2f}")
             col2.metric("Total Units Sold", f"{data['units_sold'].sum():,.0f}")
 
-            # Trend Charts
+            # Trends over time
             daily = data.groupby('date').agg({'revenue': 'sum', 'units_sold': 'sum'}).reset_index()
 
             st.markdown("### 📅 Revenue Over Time")
