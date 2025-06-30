@@ -22,7 +22,7 @@ credentials = {
         "johndoe": {
             "email": "john@example.com",
             "name": "John Doe",
-            "password": stauth.Hasher(["12345"]).generate()[0]
+            "password": stauth.Hasher(["12345"]).generate()
         }
     }
 }
