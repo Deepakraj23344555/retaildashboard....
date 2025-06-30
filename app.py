@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="Retail Sales Dashboard", layout="wide")
 
-# -------------------- USER AUTHENTICATION --------------------
+# -------------------- USER AUTH --------------------
 hashed_passwords = [
     "$2b$12$KIX7e7HRzAzsI8DTdhnXru/FzZu.1zU5goJ3NDqPBqfQFvHG0p4C6"  # password: 12345
 ]
@@ -41,10 +41,23 @@ elif authentication_status is None:
     st.warning("Please enter your credentials")
 elif authentication_status:
     authenticator.logout("Logout", "sidebar")
-    st.success(f"Welcome {name}")
+    st.success(f"Welcome {name} 👋")
 
-    # -------------------- BACKGROUND STYLE --------------------
-    st.markdown(\"\"\"\n        <style>\n            .stApp {\n                background: linear-gradient(to right, #a1c4fd, #c2e9fb);\n                animation: gradient 15s ease infinite;\n                background-size: 400% 400%;\n            }\n            @keyframes gradient {\n                0% {background-position: 0% 50%;}\n                50% {background-position: 100% 50%;}\n                100% {background-position: 0% 50%;}\n            }\n        </style>\n    \"\"\", unsafe_allow_html=True)
+    # -------------------- STYLING --------------------
+    st.markdown("""
+        <style>
+            .stApp {
+                background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+                animation: gradient 15s ease infinite;
+                background-size: 400% 400%;
+            }
+            @keyframes gradient {
+                0% {background-position: 0% 50%;}
+                50% {background-position: 100% 50%;}
+                100% {background-position: 0% 50%;}
+            }
+        </style>
+    """, unsafe_allow_html=True)
 
     # -------------------- DATABASE SETUP --------------------
     engine = sqlalchemy.create_engine('sqlite:///sales.db')
@@ -72,7 +85,7 @@ elif authentication_status:
         except Exception:
             return pd.DataFrame()
 
-    # -------------------- APP MENU --------------------
+    # -------------------- MAIN MENU --------------------
     menu = ["Upload Data", "View Data", "Dashboard"]
     choice = st.sidebar.selectbox("Navigate", menu)
 
@@ -80,12 +93,12 @@ elif authentication_status:
         st.subheader("Upload Sales CSV File")
 
         with st.expander("📌 CSV Format Example"):
-            st.markdown(\"\"\"
+            st.markdown("""
             | date       | product     | region  | units_sold | revenue |
             |------------|-------------|---------|------------|---------|
             | 2024-06-01 | Widget A    | East    | 10         | 100     |
             | 2024-06-02 | Widget B    | West    | 5          | 50      |
-            \"\"\")
+            """)
 
         file = st.file_uploader("Upload CSV", type=["csv"])
 
