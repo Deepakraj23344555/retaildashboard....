@@ -17,7 +17,9 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 # -------------------- USER AUTH --------------------
-hashed_passwords = stauth.Hasher(["12345"]).generate()
+hashed_passwords = [
+    "$2b$12$KIX7e7HRzAzsI8DTdhnXru/FzZu.1zU5goJ3NDqPBqfQFvHG0p4C6"  # password: 12345
+]
 
 credentials = {
     "usernames": {
@@ -131,6 +133,7 @@ elif authentication_status:
         else:
             data['date'] = pd.to_datetime(data['date'])
 
+            # Dropdown filters on main screen
             col1, col2 = st.columns(2)
             with col1:
                 region = st.selectbox("Select Region", ["All"] + sorted(data['region'].unique()))
