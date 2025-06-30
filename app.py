@@ -33,7 +33,12 @@ authenticator = stauth.Authenticate(
     cookie_expiry_days=1
 )
 
-name, authentication_status, username = authenticator.login("Login", location="sidebar")
+# ✅ SAFELY handle login return
+login_result = authenticator.login("Login", location="sidebar")
+if login_result is None:
+    st.stop()
+else:
+    name, authentication_status, username = login_result
 
 if authentication_status is False:
     st.error("Incorrect username or password")
