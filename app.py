@@ -11,12 +11,7 @@ import matplotlib.pyplot as plt
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(page_title="Retail Sales Dashboard", layout="wide")
 
-# -------------------- DATABASE SETUP --------------------
-engine = sqlalchemy.create_engine('sqlite:///sales.db')
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# -------------------- USER AUTH --------------------
+# -------------------- USER AUTHENTICATION --------------------
 hashed_passwords = [
     "$2b$12$KIX7e7HRzAzsI8DTdhnXru/FzZu.1zU5goJ3NDqPBqfQFvHG0p4C6"  # password: 12345
 ]
@@ -32,13 +27,13 @@ credentials = {
 }
 
 authenticator = stauth.Authenticate(
-    credentials,
-    "retail_dashboard",
-    "abcdef",
+    credentials=credentials,
+    cookie_name="retail_dashboard",
+    key="abcdef",
     cookie_expiry_days=1
 )
 
-name, authentication_status = authenticator.login("Login", location="main")
+name, authentication_status, username = authenticator.login("Login", location="sidebar")
 
 if authentication_status is False:
     st.error("Incorrect username or password")
@@ -48,23 +43,14 @@ elif authentication_status:
     authenticator.logout("Logout", "sidebar")
     st.success(f"Welcome {name}")
 
-    # -------------------- STYLING --------------------
-    st.markdown("""
-        <style>
-            .stApp {
-                background: linear-gradient(to right, #a1c4fd, #c2e9fb);
-                animation: gradient 15s ease infinite;
-                background-size: 400% 400%;
-            }
-            @keyframes gradient {
-                0% {background-position: 0% 50%;}
-                50% {background-position: 100% 50%;}
-                100% {background-position: 0% 50%;}
-            }
-        </style>
-    """, unsafe_allow_html=True)
+    # -------------------- BACKGROUND STYLE --------------------
+    st.markdown(\"\"\"\n        <style>\n            .stApp {\n                background: linear-gradient(to right, #a1c4fd, #c2e9fb);\n                animation: gradient 15s ease infinite;\n                background-size: 400% 400%;\n            }\n            @keyframes gradient {\n                0% {background-position: 0% 50%;}\n                50% {background-position: 100% 50%;}\n                100% {background-position: 0% 50%;}\n            }\n        </style>\n    \"\"\", unsafe_allow_html=True)
 
-    # -------------------- HELPER FUNCTIONS --------------------
+    # -------------------- DATABASE SETUP --------------------
+    engine = sqlalchemy.create_engine('sqlite:///sales.db')
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     def save_to_db(df):
         try:
             df.columns = df.columns.str.strip().str.lower()
@@ -86,7 +72,7 @@ elif authentication_status:
         except Exception:
             return pd.DataFrame()
 
-    # -------------------- MAIN MENU --------------------
+    # -------------------- APP MENU --------------------
     menu = ["Upload Data", "View Data", "Dashboard"]
     choice = st.sidebar.selectbox("Navigate", menu)
 
@@ -94,12 +80,12 @@ elif authentication_status:
         st.subheader("Upload Sales CSV File")
 
         with st.expander("📌 CSV Format Example"):
-            st.markdown("""
+            st.markdown(\"\"\"
             | date       | product     | region  | units_sold | revenue |
             |------------|-------------|---------|------------|---------|
             | 2024-06-01 | Widget A    | East    | 10         | 100     |
             | 2024-06-02 | Widget B    | West    | 5          | 50      |
-            """)
+            \"\"\")
 
         file = st.file_uploader("Upload CSV", type=["csv"])
 
@@ -126,14 +112,13 @@ elif authentication_status:
 
     elif choice == "Dashboard":
         st.subheader("📊 Sales Dashboard")
-
         data = load_data()
+
         if data.empty:
             st.warning("⚠️ No data found. Please upload some CSVs first.")
         else:
             data['date'] = pd.to_datetime(data['date'])
 
-            # Dropdown filters on main screen
             col1, col2 = st.columns(2)
             with col1:
                 region = st.selectbox("Select Region", ["All"] + sorted(data['region'].unique()))
@@ -150,7 +135,6 @@ elif authentication_status:
             col1.metric("Total Revenue", f"${data['revenue'].sum():,.2f}")
             col2.metric("Total Units Sold", f"{data['units_sold'].sum():,.0f}")
 
-            # Trends over time
             daily = data.groupby('date').agg({'revenue': 'sum', 'units_sold': 'sum'}).reset_index()
 
             st.markdown("### 📅 Revenue Over Time")
