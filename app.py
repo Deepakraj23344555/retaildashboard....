@@ -13,7 +13,7 @@ st.set_page_config(page_title="Retail Sales Dashboard", layout="wide")
 st.markdown("""
     <style>
         .stApp {
-            background: linear-gradient(to right, #c4fda1, #c2e9fb);
+            background: linear-gradient(to right, #c4fda1, #c2e9fb, #cfa1fd);
             animation: gradient 15s ease infinite;
             background-size: 400% 400%;
         }
